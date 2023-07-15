@@ -10,10 +10,11 @@ public class PlayerController : MonoBehaviour
 	public float jumpForce;
 	
 	public float acceleration;
+	public float decceleration;
 	public float currentSpeed;
 	
 	//
-	public float movementDirectionalInput;
+	private float moveX;
 	
     void Awake()
     {
@@ -26,12 +27,20 @@ public class PlayerController : MonoBehaviour
         Jump(); //Look to "Jump" Function
     }
     
-    private void Run()
-    {	
-		float moveX = Input.GetAxisRaw("Horizontal");
-		currentSpeed = Mathf.MoveTowards(currentSpeed, moveX * moveSpeed, acceleration * Time.deltaTime);
-		rigidBody.velocity = new Vector2(moveX * currentSpeed, rigidBody.velocity.y);
-		
+	private void Run()
+	{
+		moveX = Input.GetAxisRaw("Horizontal");
+
+		if (moveX != 0)
+		{
+			currentSpeed = Mathf.MoveTowards(currentSpeed, moveX * moveSpeed, acceleration * Time.deltaTime);
+		}
+		else
+		{
+			currentSpeed = Mathf.MoveTowards(currentSpeed, 0, decceleration * Time.deltaTime);
+		}
+
+		rigidBody.velocity = new Vector2(currentSpeed, rigidBody.velocity.y);
 	}
 	
 	private void Jump()

@@ -17,17 +17,25 @@ public class PlayerController : MonoBehaviour
 	
 	private float moveX;
 	
+	//Logic mainly found in "Jump" function to properly check if the player is grounded or not.
 	public bool playerIsGrounded;
+	private int groundContactCount;
 	
     void Awake()
     {
         rigidBody = GetComponent<Rigidbody2D>();
     }
-
-    void FixedUpdate()
+	
+	//Generally its better to have physics related code synced with FixedUpdate
+	//However our "Jump" function logic kinda goofs when detecting the space button input when its in FixedUpdate
+	//Mabye this could be fixed later but for now it shall stay in "Void Update()" for now.
+	void FixedUpdate()
+	{
+		Run(); //Look to "Run" Function
+	}
+    void Update()
     {
-        Run(); //Look to "Run" Function
-        Jump(); //Look to "Jump" Function
+		Jump(); //Look to "Jump" Function
     }
     
 	private void Run()
@@ -50,7 +58,7 @@ public class PlayerController : MonoBehaviour
 	{ 
 		if (Input.GetButtonDown("Jump") && playerIsGrounded)
 		{
-			rigidBody.velocity = new Vector2(rigidBody.velocity.x, jumpForce);
+			rigidBody.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
 			
 			playerIsGrounded = false;
 		}
@@ -61,7 +69,21 @@ public class PlayerController : MonoBehaviour
 	{
 		if (collision.gameObject.CompareTag("Ground"))
 		{
+			groundContactCount++;
 			playerIsGrounded = true;
+		}
+	}
+	
+	private void OnCollisionExit2D(Collision2D collision)
+	{
+		if (collision.gameObject.CompareTag("Ground"))
+		{
+			groundContactCount--;
+			if (groundContactCount <= 0)
+			{
+				groundContactCount = 0;
+				playerIsGrounded = false;
+			}
 		}
 	}
 }

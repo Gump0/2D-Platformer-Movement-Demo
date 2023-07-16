@@ -355,7 +355,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 5
-  moveInput: 0
+  jumpForce: 10
+  acceleration: 12
+  decceleration: 0
+  currentSpeed: 0
+  playerIsGrounded: 0
 --- !u!1 &990038433
 GameObject:
   m_ObjectHideFlags: 0
@@ -400,7 +404,7 @@ GameObject:
   - component: {fileID: 1568038938}
   m_Layer: 0
   m_Name: Platform
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

@@ -617,10 +617,7 @@ MonoBehaviour:
   currentSpeed: 0
   playerIsGrounded: 0
   jumpForce: 10
-  maxJumpTime: 0.25
-  maxJumpForce: 15
-  minJumpForce: 5
-  jumpStartTime: 0
+  jumpDecelRate: 2
   playerIsJumping: 0
 --- !u!1 &990038433
 GameObject:

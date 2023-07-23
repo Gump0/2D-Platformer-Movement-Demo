@@ -23,10 +23,7 @@ public class PlayerController : MonoBehaviour
 	public float jumpForce;
 	
 	//Jump Height Control variables
-	public float maxJumpTime;
-	public float maxJumpForce;
-	public float minJumpForce;
-	public float jumpStartTime;
+	public float jumpDecelRate;
 	public bool playerIsJumping;
 	
     void Awake()
@@ -86,14 +83,9 @@ public class PlayerController : MonoBehaviour
 	///////////////////////
 	private void HandleJump()
 	{
-		if(Input.GetButtonDown("Jump") && playerIsGrounded)
+		if(Input.GetButtonDown("Jump") && playerIsGrounded && !playerIsJumping)
 		{
 			StartJump();
-		}
-		
-		if(Input.GetButton("Jump") && playerIsJumping)
-		{
-			ContinueJump();
 		}
 		
 		if(Input.GetButtonUp("Jump"))
@@ -105,24 +97,15 @@ public class PlayerController : MonoBehaviour
 	private void StartJump()
 	{
 		playerIsJumping = true;
-		jumpStartTime = Time.time;
 		
-		float jumpForceFactor = Mathf.Clamp01((Time.time - jumpStartTime) / maxJumpTime);
-		float currentJumpForce = Mathf.Lerp(minJumpForce, maxJumpForce, jumpForceFactor);
-		rigidBody.AddForce(Vector2.up * currentJumpForce, ForceMode2D.Impulse);
-	}
-	
-	private void ContinueJump()
-	{
-		if(Time.time - jumpStartTime > maxJumpTime)
-		{
-			StopJump();
-		}
+		rigidBody.velocity = new Vector2(rigidBody.velocity.x, jumpForce);
 	}
 	
 	private void StopJump()
 	{
 		playerIsJumping = false;
+		
+		rigidBody.velocity = new Vector2(rigidBody.velocity.x, jumpDecelRate);
 	}
 	
 	///////////////////////

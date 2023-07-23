@@ -22,9 +22,13 @@ public class PlayerController : MonoBehaviour
 	private int groundContactCount;
 	public float jumpForce;
 	
-	//Jump Height Control variables
+	//Jump Height Control Variables
 	public float jumpDecelRate;
 	public bool playerIsJumping;
+	
+	//Coyote Time Variables
+	public float coyoteTime;
+    public float coyoteTimeCounter;
 	
     void Awake()
     {
@@ -59,7 +63,6 @@ public class PlayerController : MonoBehaviour
 
 		rigidBody.velocity = new Vector2(currentSpeed, rigidBody.velocity.y);
 		
-		
 		//airborne movement
 		if (!playerIsGrounded)
 		{
@@ -67,30 +70,29 @@ public class PlayerController : MonoBehaviour
 			rigidBody.AddForce(Vector2.right * moveX * airborneMoveSpeed);
 		}	
 	}
-	/*
-	private void Jump()
-	{ 
-		if (Input.GetButtonDown("Jump") && playerIsGrounded)
-		{
-			rigidBody.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
-			
-			playerIsGrounded = false;
-		}
-	}
-	*/
 	///////////////////////
 	//////JUMP STUFF///////
 	///////////////////////
 	private void HandleJump()
 	{
-		if(Input.GetButtonDown("Jump") && playerIsGrounded && !playerIsJumping)
+		if (Input.GetButtonDown("Jump") && (playerIsGrounded || coyoteTimeCounter > 0))
 		{
 			StartJump();
 		}
 		
-		if(Input.GetButtonUp("Jump"))
+		if(Input.GetButtonUp("Jump") && !playerIsGrounded && playerIsJumping)
 		{
 			StopJump();
+		}
+		
+		//Coyote Time Implementation
+		if(playerIsGrounded)
+		{
+			coyoteTimeCounter = coyoteTime;
+		}
+		else
+		{
+			coyoteTimeCounter -= Time.deltaTime;
 		}
 	}
 	
@@ -102,9 +104,8 @@ public class PlayerController : MonoBehaviour
 	}
 	
 	private void StopJump()
-	{
+	{		
 		playerIsJumping = false;
-		
 		rigidBody.velocity = new Vector2(rigidBody.velocity.x, jumpDecelRate);
 	}
 	
@@ -119,6 +120,7 @@ public class PlayerController : MonoBehaviour
 		{
 			groundContactCount++;
 			playerIsGrounded = true;
+			playerIsJumping = false;
 		}
 	}
 	

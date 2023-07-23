@@ -611,11 +611,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 5
-  jumpForce: 10
+  airborneMoveSpeed: 12
   acceleration: 12
   decceleration: 18
   currentSpeed: 0
   playerIsGrounded: 0
+  jumpForce: 10
+  maxJumpTime: 0.25
+  maxJumpForce: 15
+  minJumpForce: 5
+  jumpStartTime: 0
+  playerIsJumping: 0
 --- !u!1 &990038433
 GameObject:
   m_ObjectHideFlags: 0

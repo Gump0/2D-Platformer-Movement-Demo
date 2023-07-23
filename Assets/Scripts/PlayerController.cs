@@ -8,7 +8,7 @@ public class PlayerController : MonoBehaviour
 	BoxCollider2D collision;
 	
 	public float moveSpeed;
-	public float jumpForce;
+	public float airborneMoveSpeed; // seperate move speed value to improe airborne mobibilty
 	
 	//Acceleration on horizontal ground movement...
 	public float acceleration;
@@ -20,6 +20,14 @@ public class PlayerController : MonoBehaviour
 	//Logic mainly found in "Jump" function to properly check if the player is grounded or not.
 	public bool playerIsGrounded;
 	private int groundContactCount;
+	public float jumpForce;
+	
+	//Jump Height Control variables
+	public float maxJumpTime;
+	public float maxJumpForce;
+	public float minJumpForce;
+	public float jumpStartTime;
+	public bool playerIsJumping;
 	
     void Awake()
     {
@@ -35,7 +43,8 @@ public class PlayerController : MonoBehaviour
 	}
     void Update()
     {
-		Jump(); //Look to "Jump" Function
+		//Jump(); //Look to "Jump" Function
+		HandleJump(); //Look to "HandleJump" Function
     }
     
 	private void Run()
@@ -52,8 +61,16 @@ public class PlayerController : MonoBehaviour
 		}
 
 		rigidBody.velocity = new Vector2(currentSpeed, rigidBody.velocity.y);
+		
+		
+		//airborne movement
+		if (!playerIsGrounded)
+		{
+			float moveX = Input.GetAxisRaw("Horizontal");
+			rigidBody.AddForce(Vector2.right * moveX * airborneMoveSpeed);
+		}	
 	}
-	
+	/*
 	private void Jump()
 	{ 
 		if (Input.GetButtonDown("Jump") && playerIsGrounded)
@@ -63,6 +80,54 @@ public class PlayerController : MonoBehaviour
 			playerIsGrounded = false;
 		}
 	}
+	*/
+	///////////////////////
+	//////JUMP STUFF///////
+	///////////////////////
+	private void HandleJump()
+	{
+		if(Input.GetButtonDown("Jump") && playerIsGrounded)
+		{
+			StartJump();
+		}
+		
+		if(Input.GetButton("Jump") && playerIsJumping)
+		{
+			ContinueJump();
+		}
+		
+		if(Input.GetButtonUp("Jump"))
+		{
+			StopJump();
+		}
+	}
+	
+	private void StartJump()
+	{
+		playerIsJumping = true;
+		jumpStartTime = Time.time;
+		
+		float jumpForceFactor = Mathf.Clamp01((Time.time - jumpStartTime) / maxJumpTime);
+		float currentJumpForce = Mathf.Lerp(minJumpForce, maxJumpForce, jumpForceFactor);
+		rigidBody.AddForce(Vector2.up * currentJumpForce, ForceMode2D.Impulse);
+	}
+	
+	private void ContinueJump()
+	{
+		if(Time.time - jumpStartTime > maxJumpTime)
+		{
+			StopJump();
+		}
+	}
+	
+	private void StopJump()
+	{
+		playerIsJumping = false;
+	}
+	
+	///////////////////////
+	///END OF JUMP STUFF///
+	///////////////////////
 	
 	//Logic to check if player is grounded, be sure to tag the platforms as "Ground" in the editor
 	private void OnCollisionEnter2D(Collision2D collision)

@@ -22,6 +22,11 @@ public class PlayerController : MonoBehaviour
 	private int groundContactCount;
 	public float jumpForce;
 	
+	//GroundChecker
+	[SerializeField] Transform groundCheckObject;
+	[SerializeField] LayerMask groundLayer;
+	public float groundCheckRadius;
+	
 	//Jump Height Control Variables
 	public float jumpDecelRate;
 	public bool playerIsJumping;
@@ -29,6 +34,11 @@ public class PlayerController : MonoBehaviour
 	//Coyote Time Variables
 	public float coyoteTime;
     public float coyoteTimeCounter;
+    
+    //"IncreaseFall" Function Variables
+    public float baseGravityScale;
+    public float fallMultiplier;
+    public float jumpMultiplier;
 	
     void Awake()
     {
@@ -44,8 +54,9 @@ public class PlayerController : MonoBehaviour
 	}
     void Update()
     {
-		//Jump(); //Look to "Jump" Function
 		HandleJump(); //Look to "HandleJump" Function
+		GroundCheck(); //Look to "GroundCheck" Function
+		IncreaseFall(); //Look to "IncreaseFall" Function
     }
     
 	private void Run()
@@ -113,27 +124,33 @@ public class PlayerController : MonoBehaviour
 	///END OF JUMP STUFF///
 	///////////////////////
 	
-	//Logic to check if player is grounded, be sure to tag the platforms as "Ground" in the editor
-	private void OnCollisionEnter2D(Collision2D collision)
+	//Logic to check if GroundChecker object attatched to player is colliding with ground
+	//be sure to tag the platforms as "Ground" in the editor
+	private void GroundCheck()
 	{
-		if (collision.gameObject.CompareTag("Ground"))
+		playerIsGrounded = false;
+		
+		Collider2D[] colliders = Physics2D.OverlapCircleAll(groundCheckObject.position, groundCheckRadius, groundLayer);
+		
+		if(colliders.Length > 0)
 		{
-			groundContactCount++;
 			playerIsGrounded = true;
-			playerIsJumping = false;
 		}
 	}
 	
-	private void OnCollisionExit2D(Collision2D collision)
+	private void IncreaseFall()
 	{
-		if (collision.gameObject.CompareTag("Ground"))
+		if(rigidBody.velocity.y < 0)
 		{
-			groundContactCount--;
-			if (groundContactCount <= 0)
-			{
-				groundContactCount = 0;
-				playerIsGrounded = false;
-			}
+			rigidBody.gravityScale = baseGravityScale * fallMultiplier;
+		}
+		else if(rigidBody.velocity.y < 0 && !Input.GetButton("Jump"))
+		{
+			rigidBody.gravityScale = baseGravityScale * jumpMultiplier;
+		}
+		else
+		{
+			rigidBody.gravityScale = baseGravityScale;
 		}
 	}
 }

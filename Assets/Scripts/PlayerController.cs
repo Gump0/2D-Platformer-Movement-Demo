@@ -81,14 +81,16 @@ public class PlayerController : MonoBehaviour
 			rigidBody.AddForce(Vector2.right * moveX * airborneMoveSpeed);
 		}	
 	}
-	///////////////////////
-	//////JUMP STUFF///////
-	///////////////////////
 	private void HandleJump()
 	{
 		if (Input.GetButtonDown("Jump") && (playerIsGrounded || coyoteTimeCounter > 0))
 		{
 			StartJump();
+		}
+		
+		if (Input.GetButton("Jump") && playerIsJumping)
+		{
+			ContinueJump(); // Check if the jump button is still held down for fine control
 		}
 		
 		if(Input.GetButtonUp("Jump") && !playerIsGrounded && playerIsJumping)
@@ -114,15 +116,19 @@ public class PlayerController : MonoBehaviour
 		rigidBody.velocity = new Vector2(rigidBody.velocity.x, jumpForce);
 	}
 	
+	private void ContinueJump()
+	{
+		if (rigidBody.velocity.y < jumpForce &&  rigidBody.velocity.y > 0)
+		{
+			rigidBody.velocity = new Vector2(rigidBody.velocity.x, Mathf.Lerp(rigidBody.velocity.y, jumpForce, Time.deltaTime));
+		}
+	}
+	
 	private void StopJump()
 	{		
 		playerIsJumping = false;
-		rigidBody.velocity = new Vector2(rigidBody.velocity.x, jumpDecelRate);
+		rigidBody.velocity = new Vector2(rigidBody.velocity.x, rigidBody.velocity.y * 0.5f);
 	}
-	
-	///////////////////////
-	///END OF JUMP STUFF///
-	///////////////////////
 	
 	//Logic to check if GroundChecker object attatched to player is colliding with ground
 	//be sure to tag the platforms as "Ground" in the editor
